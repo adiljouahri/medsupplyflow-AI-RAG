@@ -1,0 +1,12 @@
+.env
+.git
+.github
+tests
+sample_data
+n8n
+ui
+README.md
+LICENSE
+__pycache__
+*.pyc
+.venv

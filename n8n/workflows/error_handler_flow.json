@@ -1,0 +1,24 @@
+{
+  "name": "Error Handler Flow",
+  "nodes": [
+    {
+      "id": "error",
+      "name": "Error Trigger",
+      "type": "errorTrigger",
+      "position": [0, 0],
+      "parameters": {}
+    },
+    {
+      "id": "log",
+      "name": "Log Failure",
+      "type": "code",
+      "position": [300, 0],
+      "parameters": {
+        "code": "const e = $json; return [{ json: { failed_step: e.node?.name || 'unknown', message: e.message || 'request failed', logged_at: new Date().toISOString() } }];"
+      }
+    }
+  ],
+  "connections": [
+    { "from": "error", "to": "log" }
+  ]
+}

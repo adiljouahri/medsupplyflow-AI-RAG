@@ -1,0 +1,1 @@
+"""MedSupplyFlow-AI application package."""

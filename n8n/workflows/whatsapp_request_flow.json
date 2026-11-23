@@ -1,0 +1,84 @@
+{
+  "name": "Synthetic WhatsApp Request Flow",
+  "nodes": [
+    {
+      "id": "webhook",
+      "name": "WhatsApp Request Webhook",
+      "type": "webhook",
+      "position": [0, 0],
+      "parameters": {
+        "path": "/whatsapp-request",
+        "method": "POST"
+      }
+    },
+    {
+      "id": "agent",
+      "name": "Call Action-Based Agent",
+      "type": "httpRequest",
+      "position": [300, 0],
+      "parameters": {
+        "url": "http://api:8000/agent/request",
+        "method": "POST",
+        "headers": {
+          "X-API-Key": "demo-internal-api-key",
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "json": {
+            "client_name": "Demo Clinic B",
+            "clinic_name": "Demo Clinic B",
+            "clinic_code": "demo-clinic-b",
+            "request_text": "Enviando 5 unidades de producto para Demo Clinic B antes 2026-06-30"
+          }
+        }
+      }
+    },
+    {
+      "id": "parse",
+      "name": "Parse Agent Response",
+      "type": "code",
+      "position": [600, 0],
+      "parameters": {
+        "code": "const d = $json; return [{ json: { needs_human: d.needs_human, response: d } }];"
+      }
+    },
+    {
+      "id": "branch",
+      "name": "Human Review?",
+      "type": "switch",
+      "position": [860, 0],
+      "parameters": {
+        "expression": "needs_human",
+        "cases": [
+          { "value": true, "label": "human" },
+          { "value": false, "label": "confirm" }
+        ]
+      }
+    },
+    {
+      "id": "human_alert",
+      "name": "Staff Alert Mock",
+      "type": "code",
+      "position": [1120, -80],
+      "parameters": {
+        "code": "const d = $json; return [{ json: { alert_type: 'human_review', message: 'HUMAN REVIEW REQUIRED: ' + d.reason } }];"
+      }
+    },
+    {
+      "id": "confirmation",
+      "name": "Multilingual Confirmation Mock",
+      "type": "code",
+      "position": [1120, 80],
+      "parameters": {
+        "code": "const d = $json; return [{ json: { confirmation: d.order || d.products, language: d.language } }];"
+      }
+    }
+  ],
+  "connections": [
+    { "from": "webhook", "to": "agent" },
+    { "from": "agent", "to": "parse" },
+    { "from": "parse", "to": "branch" },
+    { "from": "branch", "to": "human_alert", "fromOutput": "human" },
+    { "from": "branch", "to": "confirmation", "fromOutput": "confirm" }
+  ]
+}

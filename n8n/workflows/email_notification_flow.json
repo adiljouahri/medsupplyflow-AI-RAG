@@ -1,0 +1,37 @@
+{
+  "name": "Synthetic Email Notification Flow",
+  "nodes": [
+    {
+      "id": "webhook",
+      "name": "Email Notification Webhook",
+      "type": "webhook",
+      "position": [0, 0],
+      "parameters": {
+        "path": "/email-notification",
+        "method": "POST"
+      }
+    },
+    {
+      "id": "format",
+      "name": "Format Synthetic Email",
+      "type": "code",
+      "position": [300, 0],
+      "parameters": {
+        "code": "const d = $json; return [{ json: { subject: 'Synthetic supply confirmation', body: d.message || 'Demo confirmation only.' } }];"
+      }
+    },
+    {
+      "id": "send",
+      "name": "Mock Email Send",
+      "type": "code",
+      "position": [600, 0],
+      "parameters": {
+        "code": "const d = $json; return [{ json: { email_sent: true, subject: d.subject, body: d.body } }];"
+      }
+    }
+  ],
+  "connections": [
+    { "from": "webhook", "to": "format" },
+    { "from": "format", "to": "send" }
+  ]
+}

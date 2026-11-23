@@ -1,0 +1,84 @@
+{
+  "name": "Client Request Flow",
+  "nodes": [
+    {
+      "id": "webhook",
+      "name": "Client Request Webhook",
+      "type": "webhook",
+      "position": [0, 0],
+      "parameters": {
+        "path": "/client-request",
+        "method": "POST"
+      }
+    },
+    {
+      "id": "agent",
+      "name": "Call LangGraph Agent",
+      "type": "httpRequest",
+      "position": [300, 0],
+      "parameters": {
+        "url": "http://api:8000/agent/request",
+        "method": "POST",
+        "headers": {
+          "X-API-Key": "demo-internal-api-key",
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "json": {
+            "client_name": "Demo Clinic A",
+            "clinic_name": "Demo Clinic A",
+            "clinic_code": "demo-clinic-a",
+            "request_text": "Send 10 boxes of #15 scalpels to Demo Clinic A by Friday"
+          }
+        }
+      }
+    },
+    {
+      "id": "parse",
+      "name": "Parse Agent Response",
+      "type": "code",
+      "position": [600, 0],
+      "parameters": {
+        "code": "const d = $json; return [{ json: { needs_human: d.needs_human, response: d } }];"
+      }
+    },
+    {
+      "id": "branch",
+      "name": "Human Review?",
+      "type": "switch",
+      "position": [860, 0],
+      "parameters": {
+        "expression": "needs_human",
+        "cases": [
+          { "value": true, "label": "human" },
+          { "value": false, "label": "confirm" }
+        ]
+      }
+    },
+    {
+      "id": "human_alert",
+      "name": "Staff Alert Mock",
+      "type": "code",
+      "position": [1120, -80],
+      "parameters": {
+        "code": "const d = $json; return [{ json: { alert_type: 'human_review', message: 'HUMAN REVIEW REQUIRED: ' + d.reason } }];"
+      }
+    },
+    {
+      "id": "confirmation",
+      "name": "Order Confirmation",
+      "type": "code",
+      "position": [1120, 80],
+      "parameters": {
+        "code": "const d = $json; return [{ json: { confirmation: d.order || d.products } }];"
+      }
+    }
+  ],
+  "connections": [
+    { "from": "webhook", "to": "agent" },
+    { "from": "agent", "to": "parse" },
+    { "from": "parse", "to": "branch" },
+    { "from": "branch", "to": "human_alert", "fromOutput": "human" },
+    { "from": "branch", "to": "confirmation", "fromOutput": "confirm" }
+  ]
+}

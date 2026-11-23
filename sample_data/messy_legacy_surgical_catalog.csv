@@ -1,0 +1,53 @@
+sku_hint,description,unit_hint,package_qty,stock_hint,notes
+SC-15,Sterile Scalpel #15,pcs,10,10,stainless steel
+SC-15,saclpel 15 sterile,pieces,10,5,stainless steel duplicate
+SC-15,Sterle Scalpel #15,Units,10,7,stainless steel duplicate
+SUT-30,Absorbable Suture 3-0,pack,12,24,polyglycolic
+SUT-30,Absorb Suture 3-0,packs,12,18,polyglyc duplicate
+SUT-30,Absorbable Sutur 3-0,box,12,6,typo duplicate
+FOR-18,Titanium Forceps 18 cm,unit,1,8,surgical steel
+FOR-18,titanium forceps 18cm,units,5,8,duplicate
+GAZ-10,Sterile Gauze Pad 10x10 cm,pack,100,50,sterile
+GAZ-10,Sterile Gauze Pad 10 by 10 cm,pkg,100,40,pack typo
+NEE-3,Needle 3-0 curved,pack,10,30,single-use
+NEE-3,curved needle 3-0,box,10,20,duplicate
+SCA-5,Surgical Scissors 12 cm,unit,1,12,stainless
+SCA-5,surgical scissors 12cm,units,4,10,duplicate
+BIO-4,Biopsy Punch 4 mm,unit,1,15,sterile
+BIO-4,biopsy punch 4mm,units,2,12,duplicate
+CUP-2,Medicine Cup 30 ml,pcs,20,60,plastic sterile
+CUP-2,medicine cup 30ml,pack,20,45,duplicate
+GLO-7,Sterile Gloves Size 7,pair,50,100,latex
+GLO-7,sterile gloves size 7,pack,50,80,duplicate
+MAS-3,Surgical Mask 3 ply,box,50,70,non-sterile packaging
+MAS-3,surgical mask three ply,pack,50,55,duplicate
+CLP-5,Clamp 5 inch,unit,1,10,stainless
+CLP-5,clamp 5in,units,2,8,duplicate
+PAD-20,Adhesive Pad 20 cm,pcs,10,25,sterile
+PAD-20,adhesive pad 20cm,pack,10,20,duplicate
+TUB-6,Suction Tubing 6 mm,unit,1,35,sterile
+TUB-6,suction tubing 6mm,units,3,30,duplicate
+SUT-40,Suture 4-0 absorbable,pack,12,22,nylon
+SUT-40,suture 4-0 absorb,box,12,18,duplicate
+SCR-3,Skin Clamp 3 mm,pcs,10,18,sterile
+SCR-3,skin clamp 3mm,pack,10,14,duplicate
+FOR-12,Forceps 12 cm,unit,1,9,stainless
+FOR-12,forceps 12cm,units,2,7,duplicate
+NEED-2,Needle 2-0 straight,pack,10,20,sterile
+NEED-2,needle 2-0 straight,box,10,15,duplicate
+CATH-8,Catheter 8 French,unit,1,12,sterile
+CATH-8,catheter 8fr,units,3,9,duplicate
+SPR-10,Sterile Syringe 10 ml,pcs,20,40,plastic
+SPR-10,sterile syringe 10ml,pack,20,35,duplicate
+BLD-5,Scalpel Blade #5,pcs,10,16,stainless
+BLD-5,scalpel blade 5,pack,10,12,duplicate
+SUT-50,Suture 5-0 absorbable,pack,12,20,polyglycolic
+SUT-50,suture 5-0 absorb,box,12,16,duplicate
+GAZ-20,Sterile Gauze 20x20 cm,pkg,50,30,sterile
+GAZ-20,sterile gauze 20 by 20,pack,50,26,duplicate
+DRA-4,Drain 4 mm,unit,1,14,sterile
+DRA-4,drain 4mm,units,2,11,duplicate
+SUT-60,Suture 6-0 absorbable,pack,12,18,monofilament
+SUT-60,suture 6-0 absorb,box,12,14,duplicate
+CUP-5,Medicine Cup 5 ml,pcs,20,30,plastic
+CUP-5,medicine cup 5ml,pack,20,25,duplicate

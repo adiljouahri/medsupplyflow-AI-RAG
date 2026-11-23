@@ -1,0 +1,86 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: medsupply
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-demo-password}
+      POSTGRES_DB: medsupplyflow
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./app/db/init.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U medsupply -d medsupplyflow"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  chromadb:
+    image: chromadb/chroma:1.5.10.dev326
+    volumes:
+      - chroma_data:/chroma/chroma
+    environment:
+      CHROMA_SERVER_HOST: 0.0.0.0
+
+  api:
+    build: .
+    environment:
+      DATABASE_URL: postgresql+psycopg://medsupply:${POSTGRES_PASSWORD:-demo-password}@postgres:5432/medsupplyflow
+      CHROMA_HOST: chromadb
+      CHROMA_PORT: 8000
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-demo-internal-api-key}
+      CONFIDENCE_THRESHOLD: 0.85
+      MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-20}
+      MAX_ROWS: ${MAX_ROWS:-500}
+      LLM_MODEL: ${LLM_MODEL:-openai/gpt-4o-mini}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
+      MULTI_VECTOR_MODEL: ${MULTI_VECTOR_MODEL:-lightonai/mLateOn}
+      VISUAL_MODEL: ${VISUAL_MODEL:-vidore/colpali-v1.3}
+    ports:
+      - "127.0.0.1:8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    depends_on:
+      postgres:
+        condition: service_healthy
+      chromadb:
+        condition: service_started
+
+  n8n:
+    image: n8nio/n8n:1.123.100
+    ports:
+      - "127.0.0.1:5678:5678"
+    volumes:
+      - n8n_data:/n8n
+      - ./n8n/workflows:/opt/workflows:ro
+    environment:
+      N8N_BASIC_AUTH_ACTIVE: "true"
+      N8N_BASIC_AUTH_USER: "demo-user"
+      N8N_BASIC_AUTH_PASSWORD: "demo-password"
+      N8N_HOST: "localhost"
+      N8N_PORT: "5678"
+      API_BASE_URL: "http://api:8000"
+    depends_on:
+      api:
+        condition: service_healthy
+
+  ui:
+    build: ./ui
+    ports:
+      - "127.0.0.1:8501:8501"
+    environment:
+      API_BASE_URL: http://api:8000
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-demo-internal-api-key}
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  pg_data:
+  chroma_data:
+  n8n_data:
