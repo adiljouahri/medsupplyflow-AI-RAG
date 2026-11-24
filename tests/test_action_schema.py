@@ -1,5 +1,7 @@
-from app.agent.action_schema import ActionPlan
+import pytest
 from pydantic import ValidationError
+
+from app.agent.action_schema import ActionPlan
 
 
 def test_action_plan_allows_known_action() -> None:
@@ -28,12 +30,8 @@ def test_action_plan_rejects_unknown_action() -> None:
             }
         ]
     }
-    try:
+    with pytest.raises(ValidationError, match="delete_product"):
         ActionPlan.model_validate(payload)
-    except ValidationError:
-        pass
-    else:
-        raise AssertionError("unknown action should be rejected")
 
 
 def test_action_plan_rejects_missing_clinic_code() -> None:
@@ -46,9 +44,5 @@ def test_action_plan_rejects_missing_clinic_code() -> None:
             }
         ]
     }
-    try:
+    with pytest.raises(ValidationError, match="clinic_code"):
         ActionPlan.model_validate(payload)
-    except ValidationError:
-        pass
-    else:
-        raise AssertionError("missing clinic code should be rejected")

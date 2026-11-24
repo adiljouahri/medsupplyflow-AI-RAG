@@ -1,7 +1,9 @@
+import pytest
+from pydantic import ValidationError
+
 from app.db.models import Product
 from app.ingestion.normalizer import build_item, is_probable_duplicate, normalize_rows
 from app.ingestion.schemas import SurgicalItem
-from pydantic import ValidationError
 
 
 class MockLLM:
@@ -36,12 +38,10 @@ class MockLLM:
 
 
 def test_pydantic_rejects_invalid_corrupted_data() -> None:
-    try:
+    with pytest.raises(ValidationError) as exc_info:
         SurgicalItem.model_validate(MockLLM().extract_item({"description": "corrupt"}))
-    except ValidationError as exc:
-        assert "package_qty" in str(exc) or "canonical_name" in str(exc)
-    else:
-        raise AssertionError("invalid item should have been rejected")
+    message = str(exc_info.value)
+    assert "package_qty" in message or "canonical_name" in message
 
 
 def test_low_confidence_flags_needs_review() -> None:

@@ -9,16 +9,16 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from .agent.graph import run_request
 from .config import get_settings
 from .db.models import ClientRequest, Product
-from .db.session import init_db, SessionLocal
+from .db.multi_vector_store import delete_product_document, get_multi_vector_store
+from .db.session import SessionLocal, init_db
 from .db.vector_store import VectorStore
-from .db.multi_vector_store import get_multi_vector_store, delete_product_document
 from .ingestion.normalizer import LLMClient, ingest_rows
 from .ingestion.parser import parse_file
+from .ingestion.schemas import ClinicCode, RequestInput
 from .ingestion.visual_parser import store_visual_pages
-from .ingestion.schemas import RequestInput, ClinicCode
-from .agent.graph import run_request
 
 PROTECTED_PREFIXES = ("/ingest", "/agent/request", "/client/requests", "/review/")
 
@@ -109,7 +109,7 @@ def ingest(
             "summary": summary,
         }
     except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc))
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     finally:
         if tmp_path and os.path.exists(tmp_path):
             os.unlink(tmp_path)
@@ -144,11 +144,11 @@ def ingest_visual(
             source_label=source_label,
         )
     except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc))
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     except RuntimeError as exc:
-        raise HTTPException(status_code=400, detail=str(exc))
-    except Exception:
-        raise HTTPException(status_code=400, detail="visual ingestion failed")
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail="visual ingestion failed") from exc
 
     return {
         "source": file.filename,

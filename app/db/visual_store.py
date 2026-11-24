@@ -9,7 +9,7 @@ from ..db.session import SessionLocal
 
 
 def _dot(left: list[float], right: list[float]) -> float:
-    return sum(a * b for a, b in zip(left, right))
+    return sum(a * b for a, b in zip(left, right, strict=False))
 
 
 def _maxsim(query_vectors: list[list[float]], document_vectors: list[list[float]]) -> float:

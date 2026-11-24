@@ -63,7 +63,7 @@ class VectorStore:
         distances = results.get("distances", [[]])[0]
 
         matches: list[dict] = []
-        for idx, doc, meta, distance in zip(ids, docs, metadata, distances):
+        for idx, doc, meta, distance in zip(ids, docs, metadata, distances, strict=False):
             matches.append(
                 {
                     "id": idx,

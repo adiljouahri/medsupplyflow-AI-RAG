@@ -43,9 +43,24 @@ eval = ["deepeval>=0.5.0"]
 requires = ["setuptools>=68.0"]
 build-backend = "setuptools.build_meta"
 
+# The repo also contains ui/, n8n/, and sample_data/, so setuptools' flat-layout
+# auto-discovery refuses to guess. Ship only the application package.
+[tool.setuptools.packages.find]
+include = ["app*"]
+
 [tool.ruff]
 line-length = 120
 target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI declares its dependency injection through argument defaults.
+extend-immutable-calls = [
+  "fastapi.Body",
+  "fastapi.Depends",
+  "fastapi.File",
+  "fastapi.Form",
+  "fastapi.Query",
+]

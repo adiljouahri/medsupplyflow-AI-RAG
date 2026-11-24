@@ -1,7 +1,9 @@
+import pytest
+from pydantic import ValidationError
+
 from app.agent.graph import classify_intent
 from app.agent.tools import extract_quantity, extract_requested_date
-from app.ingestion.schemas import RequestInput, OrderPayload
-from pydantic import ValidationError
+from app.ingestion.schemas import OrderPayload, RequestInput
 
 
 def test_order_intent_classification() -> None:
@@ -34,12 +36,8 @@ def test_request_input_rejects_extra_pii_field() -> None:
         "request_text": "Send 10 boxes of #15 scalpels",
         "patient_id": "123",
     }
-    try:
+    with pytest.raises(ValidationError, match="patient_id"):
         RequestInput.model_validate(payload)
-    except ValidationError:
-        pass
-    else:
-        raise AssertionError("extra fields should be rejected")
 
 
 def test_order_payload_rejects_negative_quantity() -> None:
@@ -54,12 +52,8 @@ def test_order_payload_rejects_negative_quantity() -> None:
         "notes": "bad order",
         "confidence_score": 0.9,
     }
-    try:
+    with pytest.raises(ValidationError, match="quantity"):
         OrderPayload.model_validate(payload)
-    except ValidationError:
-        pass
-    else:
-        raise AssertionError("negative quantity should be rejected")
 
 
 def test_request_input_rejects_unknown_clinic() -> None:
@@ -69,9 +63,5 @@ def test_request_input_rejects_unknown_clinic() -> None:
         "clinic_code": "demo-clinic-x",
         "request_text": "Send 5 units by 2026-06-30",
     }
-    try:
+    with pytest.raises(ValidationError, match="clinic_code"):
         RequestInput.model_validate(payload)
-    except ValidationError:
-        pass
-    else:
-        raise AssertionError("unknown clinic code should be rejected")

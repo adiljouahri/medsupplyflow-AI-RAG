@@ -1,10 +1,10 @@
 import csv
 from pathlib import Path
 
-from openpyxl import load_workbook
-from PIL import Image
 import pymupdf
 import pytesseract
+from openpyxl import load_workbook
+from PIL import Image
 
 
 def parse_file(path: str | Path) -> list[dict[str, str]]:
@@ -50,7 +50,7 @@ def _parse_excel(path: Path) -> list[dict[str, str]]:
     for row in rows[1:]:
         values = [str(cell).strip() if cell is not None else "" for cell in row]
         if any(values):
-            parsed.append(dict(zip(headers, values)))
+            parsed.append(dict(zip(headers, values, strict=False)))
     return parsed
 
 

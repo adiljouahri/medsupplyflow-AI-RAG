@@ -3,7 +3,7 @@ from sqlalchemy.orm import sessionmaker
 
 from ..config import get_settings
 from .base import Base
-from .models import Clinic, Product, ClientRequest, IngestionAuditLog, MultiVectorDocument, VisualPage  # noqa: F401 (load tables)
+from .models import ClientRequest, Clinic, IngestionAuditLog, MultiVectorDocument, Product, VisualPage  # noqa: F401 (load tables)
 
 
 def make_engine():

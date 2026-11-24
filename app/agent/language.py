@@ -1,4 +1,4 @@
-from langdetect import detect, LangDetectException, DetectorFactory
+from langdetect import DetectorFactory, LangDetectException, detect
 
 DetectorFactory.seed = 0
 

@@ -1,10 +1,36 @@
 # MedSupplyFlow-AI
 
+[![CI](https://github.com/adiljouahri/medsupplyflow-AI-RAG/actions/workflows/ci.yml/badge.svg)](https://github.com/adiljouahri/medsupplyflow-AI-RAG/actions)
+![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)
+![License MIT](https://img.shields.io/badge/license-MIT-green.svg)
+
 An open-source, Dockerized AI automation platform that ingests messy legacy surgical catalogs into PostgreSQL + ChromaDB and automates synthetic client product requests through n8n and LangGraph. It uses an action-based agent flow, multilingual detection, clinic isolation via metadata filters, and GDPR/PII guardrails.
 
 > **Data rule:** this repository contains only synthetic demo products and fake clinic names. No real clinic names, supplier price lists, or patient data are included.
 
 > **Showcase disclaimer:** this is a synthetic engineering demo, not clinical software, a medical device, or a production healthcare system.
+
+---
+
+## ⚡ 60-Second Quickstart
+
+Spin up the entire stack (PostgreSQL, ChromaDB, FastAPI API, LangGraph agent, n8n, and Streamlit Admin UI) with one command:
+
+```bash
+cp .env.example .env
+docker compose up --build
+```
+
+### Active Local Services & Endpoints
+
+| Service | URL | Description |
+|---|---|---|
+| **Streamlit Admin UI** | [http://localhost:8501](http://localhost:8501) | Catalog upload, review queue, and human approval workflow |
+| **FastAPI Engine & Swagger** | [http://localhost:8000/docs](http://localhost:8000/docs) | Interactive API documentation, guardrail testing, and agent execution |
+| **n8n Orchestrator** | [http://localhost:5678](http://localhost:5678) | Webhook triggers, WhatsApp / email automation, and alerts (`demo-user` / `demo-password`) |
+| **API Healthcheck** | [http://localhost:8000/health](http://localhost:8000/health) | System health & status check |
+
+---
 
 ## Architecture
 
@@ -203,23 +229,7 @@ MedSupplyFlow-AI/
 
 **Important:** the guardrails are heuristic. For a real healthcare deployment, add authentication, authorization, rate limiting, TLS, secrets management, audit review, and legal/compliance review. See [SECURITY.md](SECURITY.md).
 
-## Quickstart
-
-After you decide to run the stack:
-
-```bash
-cp .env.example .env
-docker compose up --build
-```
-
-Local endpoints:
-
-- API: `http://localhost:8000`
-- Swagger: `http://localhost:8000/docs`
-- n8n: `http://localhost:5678`
-- Admin UI: `http://localhost:8501`
-
-## API Examples
+## API & Ingestion Examples
 
 Ingestion:
 
@@ -331,9 +341,9 @@ DEEPEVAL_MODEL=gpt-4o-mini \
 pytest -q tests/test_deepeval.py
 ```
 
-## End-to-End Verification Commands
+## Verification & Smoke Tests
 
-Run these only after you authorize execution. They are written as verification steps, not as commands already run.
+To verify the stack locally:
 
 ```bash
 python -m venv .venv
@@ -341,7 +351,6 @@ pip install -e .
 pip install ruff
 ruff check .
 pytest -q
-docker compose config
 docker compose build
 docker compose up -d
 ```

@@ -4,10 +4,10 @@ from datetime import date
 from sqlalchemy import select
 
 from ..db.models import Product
-from ..db.session import SessionLocal
 from ..db.multi_vector_store import get_multi_vector_store
-from ..db.visual_store import get_visual_store
+from ..db.session import SessionLocal
 from ..db.vector_store import VectorStore
+from ..db.visual_store import get_visual_store
 
 QUANTITY_PATTERN = re.compile(
     r"(\d+)\s*(?:boxes?|box|units?|unit|pcs?|pieces?|pack|packs|vials?|bottles?)\b",

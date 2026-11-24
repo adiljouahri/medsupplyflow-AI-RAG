@@ -4,12 +4,12 @@ from datetime import datetime
 from difflib import SequenceMatcher
 from typing import Any
 
-from pydantic import ValidationError
 from litellm import completion
+from pydantic import ValidationError
 from sqlalchemy import select
 
 from ..config import get_settings
-from ..db.models import Product, IngestionAuditLog
+from ..db.models import IngestionAuditLog, Product
 from ..db.session import SessionLocal
 from ..db.vector_store import VectorStore
 from .schemas import SurgicalItem

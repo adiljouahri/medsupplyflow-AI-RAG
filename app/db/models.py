@@ -1,17 +1,17 @@
-from datetime import datetime, date
+from datetime import date, datetime
 
 from sqlalchemy import (
+    JSON,
     Boolean,
     Date,
     DateTime,
     Float,
     ForeignKey,
     Integer,
+    LargeBinary,
     String,
     Text,
     UniqueConstraint,
-    JSON,
-    LargeBinary,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
