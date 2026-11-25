@@ -219,6 +219,7 @@ def ingest_rows(
             if item.status == "needs_review":
                 summary["needs_review"] += 1
 
+            session.flush()
             vector_store.index_product(product)
 
         session.commit()
