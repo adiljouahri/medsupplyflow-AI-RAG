@@ -1,7 +1,7 @@
 import re
 from typing import Literal, TypedDict
 
-from langgraph.graph import END, StateGraph
+from langgraph.graph import END, START, StateGraph
 
 from ..config import get_settings
 from .action_schema import ActionPlan, AgentAction
@@ -202,6 +202,7 @@ workflow.add_node("guardrails", guardrail_node)
 workflow.add_node("language", language_node)
 workflow.add_node("planner", planner_node)
 workflow.add_node("executor", executor_node)
+workflow.add_edge(START, "guardrails")
 workflow.add_edge("guardrails", "language")
 workflow.add_edge("language", "planner")
 workflow.add_edge("planner", "executor")
