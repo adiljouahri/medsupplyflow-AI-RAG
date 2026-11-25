@@ -21,7 +21,7 @@ def test_production_secrets_validation_fails_on_demo_db() -> None:
             internal_api_key="real-secure-production-key",
             database_url="postgresql+psycopg://medsupply:demo-password@postgres:5432/medsupplyflow",
         )
-    assert "demo-password" in str(exc.value)
+    assert "demo database password" in str(exc.value)
 
 
 def test_production_secrets_validation_succeeds_with_strong_creds() -> None:

@@ -65,7 +65,7 @@ class MultiVectorStore:
             )
             session.add(document)
             session.commit()
-            return document.id
+            return int(document.id)
         finally:
             session.close()
 

@@ -183,7 +183,11 @@ def execute_actions(state: dict, plan: ActionPlan) -> dict:
 
         elif action.action == "check_stock":
             product_id = action.product_id or state.get("best_product_id")
-            product = get_product_by_id(session, product_id)
+            product = (
+                get_product_by_id(session, int(product_id))
+                if product_id is not None
+                else None
+            )
             if product is None:
                 state["needs_human"] = True
                 state["response"] = {
@@ -232,7 +236,11 @@ def execute_actions(state: dict, plan: ActionPlan) -> dict:
                 return _finish(state, session)
 
             product_id = action.product_id or state.get("best_product_id")
-            product = get_product_by_id(session, product_id)
+            product = (
+                get_product_by_id(session, int(product_id))
+                if product_id is not None
+                else None
+            )
             if product is None:
                 state["needs_human"] = True
                 state["response"] = {

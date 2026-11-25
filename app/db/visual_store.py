@@ -72,7 +72,7 @@ class VisualMultiVectorStore:
             )
             session.add(page)
             session.commit()
-            return page.id
+            return int(page.id)
         finally:
             session.close()
 

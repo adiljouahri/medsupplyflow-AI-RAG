@@ -1,5 +1,6 @@
 import re
 from datetime import date
+from typing import cast
 
 from sqlalchemy import select
 
@@ -33,9 +34,12 @@ def product_to_dict(product: Product) -> dict:
 
 
 def get_product_by_id(session, product_id: int) -> Product | None:
-    return session.execute(
-        select(Product).where(Product.id == product_id)
-    ).scalar_one_or_none()
+    return cast(
+        Product | None,
+        session.execute(
+            select(Product).where(Product.id == product_id)
+        ).scalar_one_or_none(),
+    )
 
 
 def extract_quantity(text: str) -> int | None:

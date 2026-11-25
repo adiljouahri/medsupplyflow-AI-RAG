@@ -1,6 +1,6 @@
 import json
 import re
-from typing import Any
+from typing import Any, cast
 
 import litellm
 from litellm import completion
@@ -55,7 +55,7 @@ class LLMPlanner:
         )
         content = response["choices"][0]["message"]["content"]
         payload = self._extract_json(content)
-        return ActionPlan.model_validate(payload)
+        return cast(ActionPlan, ActionPlan.model_validate(payload))
 
     @staticmethod
     def _extract_json(content: str) -> dict[str, Any]:
@@ -66,4 +66,4 @@ class LLMPlanner:
         end = content.rfind("}")
         if start == -1 or end == -1:
             raise ValueError("LLM did not return a JSON object")
-        return json.loads(content[start:end + 1])
+        return cast(dict[str, Any], json.loads(content[start:end + 1]))

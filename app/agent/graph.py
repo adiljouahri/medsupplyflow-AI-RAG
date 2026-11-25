@@ -1,9 +1,10 @@
 import re
-from typing import Literal, TypedDict
+from typing import Literal, TypedDict, cast
 
 from langgraph.graph import END, START, StateGraph
 
 from ..config import get_settings
+from ..ingestion.schemas import ClinicCode
 from .action_schema import ActionPlan, AgentAction
 from .executor import execute_actions
 from .guardrails import UnsafeRequest, validate_request
@@ -172,7 +173,7 @@ def planner_node(state: AgentState) -> AgentState:
     if settings.llm_api_key or settings.llm_model.startswith("ollama/"):
         try:
             plan = LLMPlanner(settings).plan_actions(
-                state["masked_text"], state["clinic_code"]
+                state["masked_text"], cast(ClinicCode, state["clinic_code"])
             )
         except Exception as exc:
             state["needs_human"] = True
@@ -194,7 +195,7 @@ def planner_node(state: AgentState) -> AgentState:
 def executor_node(state: AgentState) -> AgentState:
     if state.get("needs_human"):
         return state
-    return execute_actions(state, state["plan"])
+    return cast(AgentState, execute_actions(cast(dict, state), state["plan"]))
 
 
 workflow = StateGraph(AgentState)
@@ -233,4 +234,4 @@ def run_request(
         },
         config=config,
     )
-    return result.get("response", {})
+    return cast(dict, result.get("response", {}))

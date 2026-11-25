@@ -2,7 +2,7 @@ import json
 import re
 from datetime import datetime
 from difflib import SequenceMatcher
-from typing import Any
+from typing import Any, cast
 
 import litellm
 from litellm import completion
@@ -67,14 +67,14 @@ class LLMClient:
         end = content.rfind("}")
         if start == -1 or end == -1:
             raise ValueError("LLM did not return a JSON object")
-        return json.loads(content[start:end + 1])
+        return cast(dict[str, Any], json.loads(content[start:end + 1]))
 
 
 def build_item(payload: dict[str, Any], threshold: float) -> SurgicalItem:
     """Validate payload and assign the human-review status."""
     item = SurgicalItem.model_validate(payload)
     status = "approved" if item.confidence_score >= threshold else "needs_review"
-    return item.model_copy(update={"status": status})
+    return cast(SurgicalItem, item.model_copy(update={"status": status}))
 
 
 def is_probable_duplicate(existing: Product, candidate: SurgicalItem) -> bool:
