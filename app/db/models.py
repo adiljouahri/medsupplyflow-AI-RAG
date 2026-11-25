@@ -19,6 +19,8 @@ from .base import Base
 
 
 class Clinic(Base):
+    __tablename__ = "clinics"
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     clinic_code: Mapped[str] = mapped_column(String(40), unique=True, index=True)
     canonical_name: Mapped[str] = mapped_column(String(120), nullable=False)
@@ -26,6 +28,8 @@ class Clinic(Base):
 
 
 class Product(Base):
+    __tablename__ = "products"
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     sku: Mapped[str] = mapped_column(String(80), index=True, nullable=False)
     canonical_name: Mapped[str] = mapped_column(String(180), nullable=False)
@@ -57,6 +61,8 @@ class Product(Base):
 
 
 class ClientRequest(Base):
+    __tablename__ = "client_requests"
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     client_name: Mapped[str] = mapped_column(String(100), nullable=False)
     clinic_name: Mapped[str] = mapped_column(String(100), nullable=False)
@@ -83,6 +89,8 @@ class ClientRequest(Base):
 
 
 class IngestionAuditLog(Base):
+    __tablename__ = "ingestion_audit_logs"
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     clinic_code: Mapped[str] = mapped_column(String(40), default="demo-clinic-a")
     source_label: Mapped[str] = mapped_column(String(200), default="legacy-catalog")
@@ -94,6 +102,8 @@ class IngestionAuditLog(Base):
 
 
 class MultiVectorDocument(Base):
+    __tablename__ = "multi_vector_documents"
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     clinic_code: Mapped[str] = mapped_column(
         String(40),
@@ -112,6 +122,8 @@ class MultiVectorDocument(Base):
 
 
 class VisualPage(Base):
+    __tablename__ = "visual_pages"
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     clinic_code: Mapped[str] = mapped_column(
         String(40),
