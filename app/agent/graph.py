@@ -216,12 +216,21 @@ def run_request(
     clinic_code: str,
     request_text: str,
 ) -> dict:
+    config = {
+        "tags": ["medsupplyflow", "agent_graph", clinic_code],
+        "metadata": {
+            "client_name": client_name,
+            "clinic_name": clinic_name,
+            "clinic_code": clinic_code,
+        },
+    }
     result = agent_graph.invoke(
         {
             "request_text": request_text,
             "client_name": client_name,
             "clinic_name": clinic_name,
             "clinic_code": clinic_code,
-        }
+        },
+        config=config,
     )
     return result.get("response", {})

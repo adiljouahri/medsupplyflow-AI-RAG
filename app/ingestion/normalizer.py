@@ -4,6 +4,7 @@ from datetime import datetime
 from difflib import SequenceMatcher
 from typing import Any
 
+import litellm
 from litellm import completion
 from pydantic import ValidationError
 from sqlalchemy import select
@@ -22,6 +23,9 @@ class LLMClient:
         self.settings = settings or get_settings()
         self.model = self.settings.llm_model
         self.api_key = self.settings.llm_api_key
+        if self.settings.langchain_tracing_v2 and "langsmith" not in litellm.success_callback:
+            litellm.success_callback.append("langsmith")
+            litellm.failure_callback.append("langsmith")
 
     def extract_item(self, raw_row: dict[str, str]) -> dict[str, Any]:
         raw_text = " | ".join(

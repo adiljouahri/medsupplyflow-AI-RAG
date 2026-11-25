@@ -105,8 +105,38 @@ Local install options:
 pip install -e .
 pip install -e ".[advanced]"   # Sentence Transformers multimodal extras
 pip install -e ".[ui]"         # Streamlit UI
-pip install -e ".[eval]"       # optional DeepEval
+pip install -e ".[eval]"       # DeepEval & LangSmith evaluation
+pip install -e ".[dev]"        # Ruff, Mypy, and Pytest
 ```
+
+## LangSmith Tracing & Evals
+
+MedSupplyFlow-AI natively supports **LangSmith** for full observability, run tracing, and agent dataset evaluations.
+
+### 1. Enable Tracing
+
+Set the following variables in your `.env`:
+
+```env
+LANGCHAIN_TRACING_V2=true
+LANGCHAIN_API_KEY=your_langsmith_api_key
+LANGCHAIN_PROJECT=medsupplyflow-ai
+LANGCHAIN_ENDPOINT=https://api.smith.langchain.com
+```
+
+When enabled:
+- **LangGraph** executions in `/agent/request` are automatically traced with tags and clinic isolation metadata.
+- **LiteLLM** calls in `LLMPlanner` and `LLMClient` report spans to LangSmith through the integrated callback.
+
+### 2. Dataset Evaluations
+
+Run automated LangSmith evaluation against sample clinical request scenarios:
+
+```bash
+pytest tests/test_langsmith_eval.py
+```
+
+The test evaluates agent decision validity and logs run metrics to your LangSmith project.
 
 For a Docker build with advanced extras:
 

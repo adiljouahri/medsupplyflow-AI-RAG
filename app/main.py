@@ -33,6 +33,8 @@ def get_db():
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
+    settings = get_settings()
+    settings.apply_langsmith_tracing()
     init_db()
     yield
 
@@ -75,18 +77,21 @@ def ingest(
 
     settings = get_settings()
     max_bytes = settings.max_upload_mb * 1024 * 1024
-    content = file.file.read(max_bytes + 1)
-    if len(content) > max_bytes:
-        raise HTTPException(
-            status_code=413,
-            detail=f"upload exceeds {settings.max_upload_mb} MB",
-        )
-
     suffix = Path(file.filename).suffix.lower()
     tmp_path = None
+    total_bytes = 0
+    chunk_size = 1024 * 1024  # 1MB chunks
+
     try:
         with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
-            tmp.write(content)
+            while chunk := file.file.read(chunk_size):
+                total_bytes += len(chunk)
+                if total_bytes > max_bytes:
+                    raise HTTPException(
+                        status_code=413,
+                        detail=f"upload exceeds {settings.max_upload_mb} MB",
+                    )
+                tmp.write(chunk)
             tmp_path = tmp.name
 
         raw_rows = parse_file(tmp_path)
@@ -130,12 +135,20 @@ def ingest_visual(
 
     settings = get_settings()
     max_bytes = settings.max_upload_mb * 1024 * 1024
-    content = file.file.read(max_bytes + 1)
-    if len(content) > max_bytes:
-        raise HTTPException(
-            status_code=413,
-            detail=f"upload exceeds {settings.max_upload_mb} MB",
-        )
+    chunks = []
+    total_bytes = 0
+    chunk_size = 1024 * 1024
+
+    while chunk := file.file.read(chunk_size):
+        total_bytes += len(chunk)
+        if total_bytes > max_bytes:
+            raise HTTPException(
+                status_code=413,
+                detail=f"upload exceeds {settings.max_upload_mb} MB",
+            )
+        chunks.append(chunk)
+
+    content = b"".join(chunks)
 
     try:
         pages_stored = store_visual_pages(

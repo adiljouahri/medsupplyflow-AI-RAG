@@ -2,6 +2,7 @@ import json
 import re
 from typing import Any
 
+import litellm
 from litellm import completion
 
 from ..config import get_settings
@@ -16,6 +17,9 @@ class LLMPlanner:
         self.settings = settings or get_settings()
         self.model = self.settings.llm_model
         self.api_key = self.settings.llm_api_key
+        if self.settings.langchain_tracing_v2 and "langsmith" not in litellm.success_callback:
+            litellm.success_callback.append("langsmith")
+            litellm.failure_callback.append("langsmith")
 
     def plan_actions(self, request_text: str, clinic_code: ClinicCode) -> ActionPlan:
         if not self.api_key and not self.model.startswith("ollama/"):
