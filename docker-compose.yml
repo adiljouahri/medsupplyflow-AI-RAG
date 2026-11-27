@@ -23,6 +23,60 @@ services:
     environment:
       CHROMA_SERVER_HOST: 0.0.0.0
 
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  langfuse-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: langfuse
+      POSTGRES_PASSWORD: ${LANGFUSE_DB_PASSWORD:-langfuse-password}
+      POSTGRES_DB: langfuse
+    volumes:
+      - langfuse_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U langfuse -d langfuse"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  langfuse:
+    image: langfuse/langfuse:3
+    depends_on:
+      langfuse-db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      DATABASE_URL: postgresql://langfuse:${LANGFUSE_DB_PASSWORD:-langfuse-password}@langfuse-db:5432/langfuse
+      NEXTAUTH_URL: http://localhost:3000
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:-my-super-secret-nextauth-token-12345}
+      SALT: ${SALT:-my-super-secret-salt-12345}
+      TELEMETRY_ENABLED: "false"
+
+  worker:
+    build: .
+    command: ["arq", "app.worker.WorkerSettings"]
+    environment:
+      DATABASE_URL: postgresql+psycopg://medsupply:${POSTGRES_PASSWORD:-demo-password}@postgres:5432/medsupplyflow
+      REDIS_URL: redis://redis:6379/0
+      LLM_MODEL: ${LLM_MODEL:-openai/gpt-4o-mini}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
   api:
     build: .
     environment:
@@ -38,6 +92,11 @@ services:
       OLLAMA_BASE_URL: http://host.docker.internal:11434
       MULTI_VECTOR_MODEL: ${MULTI_VECTOR_MODEL:-lightonai/mLateOn}
       VISUAL_MODEL: ${VISUAL_MODEL:-vidore/colpali-v1.3}
+      REDIS_URL: redis://redis:6379/0
+      LANGFUSE_ENABLED: ${LANGFUSE_ENABLED:-true}
+      LANGFUSE_PUBLIC_KEY: ${LANGFUSE_PUBLIC_KEY:-}
+      LANGFUSE_SECRET_KEY: ${LANGFUSE_SECRET_KEY:-}
+      LANGFUSE_HOST: ${LANGFUSE_HOST:-http://langfuse:3000}
     ports:
       - "127.0.0.1:8000:8000"
     healthcheck:
@@ -50,6 +109,8 @@ services:
         condition: service_healthy
       chromadb:
         condition: service_started
+      redis:
+        condition: service_healthy
 
   n8n:
     image: n8nio/n8n:1.123.100
@@ -84,3 +145,5 @@ volumes:
   pg_data:
   chroma_data:
   n8n_data:
+  redis_data:
+  langfuse_pg_data:

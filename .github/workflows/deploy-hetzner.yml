@@ -1,0 +1,49 @@
+name: Deploy to Production (Hetzner Cloud)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Hetzner VM via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HETZNER_HOST }}
+          username: root
+          key: ${{ secrets.HETZNER_SSH_KEY }}
+          script: |
+            set -e
+            cd /opt/medsupplyflow
+            if [ ! -d ".git" ]; then
+              git clone https://github.com/${{ github.repository }}.git .
+            else
+              git pull origin main
+            fi
+
+            # Export production secrets
+            cat <<EOF > .env
+            POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+            INTERNAL_API_KEY=${{ secrets.INTERNAL_API_KEY }}
+            LLM_API_KEY=${{ secrets.LLM_API_KEY }}
+            LLM_MODEL=${{ secrets.LLM_MODEL || 'openai/gpt-4o-mini' }}
+            LANGFUSE_ENABLED=true
+            LANGFUSE_PUBLIC_KEY=${{ secrets.LANGFUSE_PUBLIC_KEY }}
+            LANGFUSE_SECRET_KEY=${{ secrets.LANGFUSE_SECRET_KEY }}
+            LANGFUSE_HOST=http://langfuse:3000
+            NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET || 'secret-nextauth-token-medsupply' }}
+            SALT=${{ secrets.SALT || 'medsupply-salt-token' }}
+            EOF
+
+            # Build and deploy all services
+            docker compose down --remove-orphans || true
+            docker compose up -d --build
+
+            # Run DB migrations
+            docker compose exec -T api alembic upgrade head

@@ -4,6 +4,7 @@ from ..db.session import SessionLocal
 from ..db.vector_store import VectorStore
 from ..ingestion.schemas import OrderPayload
 from .action_schema import ActionPlan
+from .guardrails import unmask_pii
 from .tools import (
     extract_quantity,
     extract_requested_date,
@@ -40,7 +41,10 @@ def execute_actions(state: dict, plan: ActionPlan) -> dict:
     order = None
     response = None
 
+    vault = state.get("pii_vault", {})
     for action in plan.actions:
+        if action.query and vault:
+            action.query = unmask_pii(action.query, vault)
         if action.action == "ask_human":
             state["needs_human"] = True
             state["response"] = {

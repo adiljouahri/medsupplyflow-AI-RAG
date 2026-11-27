@@ -7,7 +7,7 @@ from ..config import get_settings
 from ..ingestion.schemas import ClinicCode
 from .action_schema import ActionPlan, AgentAction
 from .executor import execute_actions
-from .guardrails import UnsafeRequest, validate_request
+from .guardrails import UnsafeRequest, validate_request_with_vault
 from .language import detect_supported_language
 from .planner import LLMPlanner
 from .tools import extract_quantity
@@ -41,6 +41,7 @@ class AgentState(TypedDict, total=False):
     clinic_name: str
     clinic_code: str
     masked_text: str
+    pii_vault: dict[str, str]
     language: str
     needs_human: bool
     plan: ActionPlan
@@ -131,7 +132,9 @@ def guardrail_node(state: AgentState) -> AgentState:
         return state
 
     try:
-        state["masked_text"] = validate_request(state["request_text"])
+        masked_text, pii_vault = validate_request_with_vault(state["request_text"])
+        state["masked_text"] = masked_text
+        state["pii_vault"] = pii_vault
     except UnsafeRequest as exc:
         state["needs_human"] = True
         state["response"] = {
@@ -217,6 +220,24 @@ def run_request(
     clinic_code: str,
     request_text: str,
 ) -> dict:
+    settings = get_settings()
+    callbacks = []
+
+    if settings.langfuse_enabled and settings.langfuse_public_key and settings.langfuse_secret_key:
+        try:
+            from langfuse.callback import CallbackHandler
+            langfuse_handler = CallbackHandler(
+                public_key=settings.langfuse_public_key,
+                secret_key=settings.langfuse_secret_key,
+                host=settings.langfuse_host,
+                user_id=client_name,
+                session_id=f"session-{clinic_code}",
+                tags=["medsupplyflow", clinic_code],
+            )
+            callbacks.append(langfuse_handler)
+        except Exception:
+            pass
+
     config = {
         "tags": ["medsupplyflow", "agent_graph", clinic_code],
         "metadata": {
@@ -225,6 +246,9 @@ def run_request(
             "clinic_code": clinic_code,
         },
     }
+    if callbacks:
+        config["callbacks"] = callbacks
+
     result = agent_graph.invoke(
         {
             "request_text": request_text,

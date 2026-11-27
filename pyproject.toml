@@ -28,6 +28,11 @@ dependencies = [
   "pytest>=8.0.0",
   "langdetect>=1.0.0",
   "langsmith>=0.1.0",
+  "langfuse>=2.50.0",
+  "mcp>=1.0.0",
+  "redis>=5.0.0",
+  "arq>=0.26.0",
+  "alembic>=1.13.0",
 ]
 
 [project.optional-dependencies]

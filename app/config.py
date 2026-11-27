@@ -27,6 +27,15 @@ class Settings(BaseSettings):
     langchain_project: str = Field(default="medsupplyflow-ai", alias="LANGCHAIN_PROJECT")
     langchain_endpoint: str = Field(default="https://api.smith.langchain.com", alias="LANGCHAIN_ENDPOINT")
 
+    # Langfuse Observability & Evals
+    langfuse_enabled: bool = Field(default=False, alias="LANGFUSE_ENABLED")
+    langfuse_public_key: str | None = Field(default=None, alias="LANGFUSE_PUBLIC_KEY")
+    langfuse_secret_key: str | None = Field(default=None, alias="LANGFUSE_SECRET_KEY")
+    langfuse_host: str = Field(default="http://langfuse:3000", alias="LANGFUSE_HOST")
+
+    # Redis & Async Queue Configuration
+    redis_url: str = Field(default="redis://redis:6379/0", alias="REDIS_URL")
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
