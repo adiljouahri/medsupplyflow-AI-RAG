@@ -18,10 +18,11 @@ async def process_catalog_file(ctx: dict, file_path: str, source_label: str, cli
     try:
         raw_rows = parse_file(file_path)
         settings = get_settings()
-        llm = LLMClient(api_key=settings.llm_api_key, model=settings.llm_model)
+        llm = LLMClient()
         result = ingest_rows(
             raw_rows=raw_rows,
             llm=llm,
+            threshold=settings.confidence_threshold,
             source_label=source_label,
             clinic_code=clinic_code,
         )
