@@ -65,9 +65,7 @@ flowchart TB
     UI <--> API
 ```
 
-![Full architecture diagram](mermaid-diagram-full.png)
-
-The rendered full architecture diagram is above; its Mermaid source is in [ARCHITECTURE.md](ARCHITECTURE.md).
+The full architecture Mermaid source is in [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## Action-Based Agent Flow
 
