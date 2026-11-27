@@ -1,8 +1,9 @@
 """Async background task worker using ARQ and Redis for heavy ingestion and OCR."""
 
 import logging
-from arq.connections import RedisSettings
 from urllib.parse import urlparse
+
+from arq.connections import RedisSettings
 
 from app.config import get_settings
 from app.ingestion.normalizer import LLMClient, ingest_rows

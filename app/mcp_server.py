@@ -5,6 +5,7 @@ to securely query medical inventory and execute actions while respecting clinic 
 """
 
 from typing import Any
+
 from mcp.server.fastmcp import FastMCP
 from sqlalchemy import select
 
