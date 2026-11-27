@@ -39,23 +39,29 @@ flowchart TB
     subgraph Clients
         W["Client Request / WhatsApp Webhook"]
         F["Legacy Messy Files (CSV / PDF / OCR)"]
+        MCP_C["MCP Clients (Voice AI / Claude / Cursor)"]
     end
 
     subgraph Docker
         N8N["n8n Orchestrator\n(Webhooks, Retries, Alerts)"]
-        API["FastAPI + LangGraph Engine\n(Action Planner, Executor, Pydantic Guardrails)"]
-        PG[("PostgreSQL\nProducts, Stock, Client Requests, Audit Logs, Multi-Vector Docs, Visual Pages")]
+        API["FastAPI + LangGraph Engine\n(PII Vault, Action Planner, Executor)"]
+        MCP["FastMCP Server\n(Clinic-Isolated Tools)"]
+        REDIS[("Redis\nAsync Queue")]
+        WORKER["ARQ Worker\n(Async Ingestion & OCR)"]
+        PG[("PostgreSQL + Alembic\nProducts, Stock, Requests, Audit Logs")]
         CH[("ChromaDB\nSemantic Product Embeddings")]
+        LF["Langfuse\n(LLM Tracing, Token Costs, Evals)"]
         UI["Streamlit Admin UI\nReview Queue & Ingestion"]
     end
 
     F --> API
-    API --> PG
-    API --> CH
-    W --> N8N
-    N8N --> API
-    API --> CH & PG
+    API --> REDIS --> WORKER
+    WORKER --> PG & CH
+    API --> PG & CH
+    API -.->|Traces| LF
+    W --> N8N --> API
     API --> N8N
+    MCP_C <--> MCP --> API
     UI <--> API
 ```
 
